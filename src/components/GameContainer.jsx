@@ -2,7 +2,16 @@ import React, { useState, useEffect } from 'react'
 import GameBoard from './GameBoard.jsx'
 import Settings from './Settings.jsx'
 import './GameContainer.css'
-
+import Lottie from "react-lottie";
+import * as success from "./1127-success.json";
+const defaultOptions2 = {
+  loop: true,
+  autoplay: true,
+  animationData: success.default,
+  rendererSettings: {
+    preserveAspectRatio: "xMidYMid slice",
+  },
+};
 const GameContainer = () => {
   const emptyBoard = ['', '', '', '', '', '', '', '', '']
   const availableBoard = [0, 1, 2, 3, 4, 5, 6, 7, 8]
@@ -13,7 +22,7 @@ const GameContainer = () => {
   const [userChar, setUserChar] = useState('o')
   const [compChar, setCompChar] = useState('x')
   const [message, setMessage] = useState('')
-
+  const [completed, setcompleted] = useState(undefined);
   const maxDepth = 4
   const decisionTree = new Map()
 
@@ -40,12 +49,16 @@ const GameContainer = () => {
       setMessage('it\'s a tie!')
     } else if (hasWon) {
       setMessage(`${hasWon} wins!`)
+      setTimeout(() => {
+        setcompleted(true);
+      }, 1000);
     } else if (boardCleared(gameSquares) && userChar === 'o') {
       setMessage('you first')
     } else {
       setMessage('')
     }
   })
+  
 
   // check for board state
   const checkForState = (squares = gameSquares) => {
@@ -186,31 +199,31 @@ const GameContainer = () => {
   }
 
   return (
-    <div className='gameContainer'>
-      <div className='titleContainer'>
-        tic tac toe
-      </div>
-      <div className='mainContainer'>
-        <GameBoard
+    <>{!completed ? (<><div className='gameContainer'>
+    <div className='titleContainer'>
+      tic tac toe
+    </div>
+    <div className='mainContainer'>
+      <GameBoard
+        done={hasWon}
+        findBestMove={findBestMove}
+        gameSquares={gameSquares}
+        updateBoard={updateBoard}
+        userChar={userChar}
+      />
+      <div>
+        <Settings
+          clearBoard={clearBoard}
           done={hasWon}
-          findBestMove={findBestMove}
-          gameSquares={gameSquares}
-          updateBoard={updateBoard}
+          updateUserChar={setUserChar}
           userChar={userChar}
         />
-        <div>
-          <Settings
-            clearBoard={clearBoard}
-            done={hasWon}
-            updateUserChar={setUserChar}
-            userChar={userChar}
-          />
-          <div className='messageContainer'>
-            {message}
-          </div>
+        <div className='messageContainer'>
+          {message}
         </div>
       </div>
     </div>
+  </div> </>):(<> <Lottie options={defaultOptions2} height={100} width={100} /> </>)}</>
   )
 }
 
